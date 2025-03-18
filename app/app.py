@@ -342,7 +342,7 @@ def schedule():
     </head>
     <body>
         <div class="container">
-            <h1>Book an Appointment</h1>
+            <h1>Book a Delivery Slot</h1>
             
             <form method="post" id="appointmentForm">
                 <h2>1. Select a Date</h2>
@@ -367,10 +367,10 @@ def schedule():
                 
                 <input type="hidden" id="appointment_time" name="appointment_time">
                 
-                <h2>3. Enter Appointment Details</h2>
-                <textarea id="details" name="details" placeholder="Enter appointment details" required></textarea>
+                <h2>3. Add Delivery Notes (Optional)</h2>
+                <textarea id="details" name="details" placeholder="e.g. Notes for driver, feedback or product suggestions..." required></textarea>
                 
-                <button type="submit" id="submitBtn">Book Appointment</button>
+                <button type="submit" id="submitBtn">Book Delivery</button>
             </form>
             
             <div id="bookingMessage" class="message info hidden"></div>
@@ -582,7 +582,7 @@ def schedule():
                             document.getElementById('appointment_time').value = selectedDateTime;
                             
                             document.getElementById('bookingMessage').textContent = 
-                                'You are booking an appointment for ' + 
+                                'You are booking a delivery for ' + 
                                 new Date(selectedDateTime).toLocaleString() + '.';
                             document.getElementById('bookingMessage').classList.remove('hidden');
                         }});
