@@ -25,7 +25,13 @@ class TestAppointmentScheduler(unittest.TestCase):
         """
         Test that an appointment is successfully booked.
         """
-        appointment_time = "2025-03-17T14:00"
+        # Use a future date (day after tomorrow to avoid conflicts with other tests)
+        future_date = datetime.now() + timedelta(days=2)
+        if future_date.weekday() == 6:  # Skip Sunday
+            future_date += timedelta(days=1)
+        future_date = future_date.replace(hour=14, minute=0, second=0, microsecond=0)
+        appointment_time = future_date.strftime("%Y-%m-%dT%H:%M")
+        
         details = "Doctor appointment"
         self.dsl.select_appointment_time(appointment_time)
         self.dsl.enter_appointment_details(details)
@@ -38,8 +44,14 @@ class TestAppointmentScheduler(unittest.TestCase):
         """
         Test that the system prevents booking two appointments in the same one-hour slot.
         """
+        # Use a future date (3 days ahead to avoid conflicts)
+        future_date = datetime.now() + timedelta(days=3)
+        if future_date.weekday() == 6:  # Skip Sunday
+            future_date += timedelta(days=1)
+        future_date = future_date.replace(hour=15, minute=0, second=0, microsecond=0)
+        appointment_time = future_date.strftime("%Y-%m-%dT%H:%M")
+        
         # First, book an appointment.
-        appointment_time = "2025-03-17T15:00"
         details = "Meeting with client"
         self.dsl.select_appointment_time(appointment_time)
         self.dsl.enter_appointment_details(details)
@@ -69,8 +81,16 @@ class TestAppointmentScheduler(unittest.TestCase):
         """
         Test that an already booked time slot is greyed out in the date-time picker.
         """
+        # Use a future date (4 days ahead to avoid conflicts)
+        future_date = datetime.now() + timedelta(days=4)
+        if future_date.weekday() == 6:  # Skip Sunday
+            future_date += timedelta(days=1)
+        future_date = future_date.replace(hour=16, minute=0, second=0, microsecond=0)
+        appointment_time = future_date.strftime("%Y-%m-%dT%H:%M")
+        date_part = future_date.strftime("%Y-%m-%d")
+        time_part = "16:00"
+        
         # First, book an appointment
-        appointment_time = "2025-03-17T16:00"
         details = "Dentist appointment"
         self.dsl.select_appointment_time(appointment_time)
         self.dsl.enter_appointment_details(details)
@@ -82,8 +102,6 @@ class TestAppointmentScheduler(unittest.TestCase):
         time.sleep(1)
         
         # Verify the time slot is greyed out
-        date_part = "2025-03-17"
-        time_part = "16:00"
         self.assertTrue(self.dsl.verify_time_slot_is_disabled(date_part, time_part))
 
     def test_successfully_book_available_time_slot(self):
@@ -113,8 +131,16 @@ class TestAppointmentScheduler(unittest.TestCase):
         """
         Test that attempting to select a greyed-out slot is prevented.
         """
+        # Use a future date (5 days ahead to avoid conflicts)
+        future_date = datetime.now() + timedelta(days=5)
+        if future_date.weekday() == 6:  # Skip Sunday
+            future_date += timedelta(days=1)
+        future_date = future_date.replace(hour=9, minute=0, second=0, microsecond=0)
+        appointment_time = future_date.strftime("%Y-%m-%dT%H:%M")
+        date_part = future_date.strftime("%Y-%m-%d")
+        time_part = "09:00"
+        
         # First, book an appointment
-        appointment_time = "2025-03-18T09:00"
         details = "Dentist appointment"
         self.dsl.select_appointment_time(appointment_time)
         self.dsl.enter_appointment_details(details)
@@ -122,7 +148,7 @@ class TestAppointmentScheduler(unittest.TestCase):
         time.sleep(1)
         
         # Attempt to book the same slot again (simulating a user bypassing client-side validation)
-        self.assertTrue(self.dsl.attempt_to_select_disabled_slot("2025-03-18", "09:00"))
+        self.assertTrue(self.dsl.attempt_to_select_disabled_slot(date_part, time_part))
         
     def test_today_date_is_disabled(self):
         """

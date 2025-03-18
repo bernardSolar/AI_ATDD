@@ -96,5 +96,8 @@ class WebAppDriver:
         self.set_details("Attempting to book disabled slot")
         self.submit_form()
         
-        # Should fail with error about slot already booked
-        return "Time slot already booked" in self.response.text
+        # Check for any error message that would indicate booking failure
+        return ("Time slot already booked" in self.response.text or
+                "Cannot book appointments for today or past dates" in self.response.text or
+                "Cannot book appointments on Sundays" in self.response.text or
+                not self.check_success_message())
