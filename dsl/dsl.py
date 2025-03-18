@@ -11,6 +11,10 @@ class AppointmentDSL:
         # Domain action: visit the appointment scheduling page
         return self.driver.visit_page()
         
+    def clear_all_appointments(self):
+        # Domain action: clear all appointments for testing
+        return self.driver.clear_all_slots()
+        
     def select_appointment_time(self, datetime_str):
         # Domain action: set the appointment time.
         self.driver.set_appointment_time(datetime_str)

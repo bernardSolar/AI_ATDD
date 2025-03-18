@@ -20,6 +20,9 @@ class TestAppointmentScheduler(unittest.TestCase):
         # Initialize the protocol driver and DSL layer.
         self.driver = WebAppDriver("http://localhost:8999")
         self.dsl = AppointmentDSL(self.driver)
+        
+        # Clear all appointments at the start of each test
+        self.dsl.clear_all_appointments()
 
     def test_successful_appointment_booking(self):
         """

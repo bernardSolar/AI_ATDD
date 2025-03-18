@@ -38,6 +38,16 @@ def booked_slots_api():
     # Format the slots as ISO strings
     formatted_slots = [slot.isoformat() for slot in booked_slots]
     return jsonify(formatted_slots)
+    
+@app.route('/api/clear-slots', methods=['POST'])
+def clear_slots_api():
+    # API endpoint to clear all booked slots (for testing)
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute("DELETE FROM appointments")
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "success", "message": "All appointments cleared"})
 
 @app.route('/', methods=['GET', 'POST'])
 def schedule():

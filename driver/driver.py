@@ -30,6 +30,11 @@ class WebAppDriver:
             self.booked_slots = response.json()
             return True
         return False
+        
+    def clear_all_slots(self):
+        # Clear all booked slots (for testing)
+        response = self.session.post(f"{self.base_url}/api/clear-slots")
+        return response.status_code == 200
 
     def set_appointment_time(self, datetime_str):
         self.appointment_time = datetime_str
