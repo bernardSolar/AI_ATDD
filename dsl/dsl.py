@@ -55,11 +55,11 @@ class AppointmentDSL:
                 
         return True
         
-    def verify_today_is_disabled(self):
-        # Domain action: verify that today's date is disabled
-        from datetime import datetime
-        today = datetime.now().strftime("%Y-%m-%d")
-        return self.driver.check_time_slot_disabled(today, "12:00")
+    def verify_past_date_is_disabled(self):
+        # Domain action: verify that past dates are disabled
+        from datetime import datetime, timedelta
+        yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+        return self.driver.check_time_slot_disabled(yesterday, "12:00")
     
     def verify_sunday_is_disabled(self):
         # Domain action: verify that Sunday is disabled

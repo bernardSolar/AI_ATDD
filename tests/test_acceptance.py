@@ -153,16 +153,19 @@ class TestAppointmentScheduler(unittest.TestCase):
         # Attempt to book the same slot again (simulating a user bypassing client-side validation)
         self.assertTrue(self.dsl.attempt_to_select_disabled_slot(date_part, time_part))
         
-    def test_today_date_is_disabled(self):
+    def test_past_date_is_disabled(self):
         """
-        Test that today's date is disabled and cannot be selected for appointments.
+        Test that past dates are disabled and cannot be selected for appointments.
         """
         # Visit the booking page
         self.dsl.visit_booking_page()
         time.sleep(1)
         
-        # Verify that today's date is disabled
-        self.assertTrue(self.dsl.verify_today_is_disabled())
+        # Create a date in the past
+        past_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        # Verify that past date is disabled
+        self.assertTrue(self.driver.check_time_slot_disabled(past_date, "12:00"))
         
     def test_sunday_dates_are_disabled(self):
         """
@@ -207,17 +210,17 @@ class TestAppointmentScheduler(unittest.TestCase):
         time.sleep(1)
         self.assertFalse(self.dsl.verify_appointment_success())
         
-    def test_cannot_book_today(self):
+    def test_cannot_book_past_date(self):
         """
-        Test that the system prevents booking appointments for today.
+        Test that the system prevents booking appointments for past dates.
         """
-        # Get today's date
-        today_str = datetime.now().strftime("%Y-%m-%d")
+        # Get a past date
+        past_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
         
-        # Attempt to book today (simulating a user bypassing client-side validation)
-        today_time = f"{today_str}T15:00"
-        self.dsl.select_appointment_time(today_time)
-        self.dsl.enter_appointment_details("Same-day appointment")
+        # Attempt to book past date (simulating a user bypassing client-side validation)
+        past_time = f"{past_date}T15:00"
+        self.dsl.select_appointment_time(past_time)
+        self.dsl.enter_appointment_details("Past appointment")
         self.dsl.submit_appointment()
         
         # This should fail

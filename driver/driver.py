@@ -48,11 +48,18 @@ class WebAppDriver:
     def check_success_message(self):
         # Success is indicated by a redirect or a 200 OK without error message.
         successful = self.response.status_code in (200, 302)
+        
+        # Debug the response to see what might be happening
+        print(f"Status code: {self.response.status_code}")
+        print(f"Response text: {self.response.text[:500]}...")  # Print first 500 chars
+        
         # But also check for error messages that would indicate failure
         has_error = ("Time slot already booked" in self.response.text or 
                    "Invalid datetime format" in self.response.text or
-                   "Cannot book appointments for today or past dates" in self.response.text or
+                   "Cannot book appointments for past dates" in self.response.text or
                    "Cannot book appointments on Sundays" in self.response.text)
+                   
+        print(f"Has error: {has_error}")
         return successful and not has_error
 
     def check_error_message(self, expected_message):
@@ -68,9 +75,9 @@ class WebAppDriver:
         # Create the datetime string in ISO format
         datetime_str = f"{date_str}T{time_str}"
         
-        # Check if this is today (disabled)
+        # Check if this is a past date (disabled)
         today = datetime.now().strftime("%Y-%m-%d")
-        if date_str == today:
+        if date_str < today:
             return True
             
         # Check if this is a Sunday (disabled)

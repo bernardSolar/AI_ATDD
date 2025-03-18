@@ -50,10 +50,10 @@ def schedule():
         except Exception:
             return "Invalid datetime format", 400
 
-        # Check if date is in the past or today
+        # Check if date is in the past
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        if appt_dt.date() <= today.date():
-            return "Cannot book appointments for today or past dates", 400
+        if appt_dt.date() < today.date():
+            return "Cannot book appointments for past dates", 400
             
         # Check if date is a Sunday
         if appt_dt.weekday() == 6:  # Sunday is 6 in Python's weekday()
