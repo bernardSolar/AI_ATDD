@@ -90,7 +90,8 @@ def schedule():
         conn.close()
         return redirect(url_for('schedule'))
 
-    # Get booked slots for the UI
+    # Get booked slots for the UI (with cache-busting timestamp)
+    cache_buster = datetime.now().timestamp()
     booked_slots = get_booked_slots()
     formatted_slots = json.dumps([slot.isoformat() for slot in booked_slots])
     
@@ -643,12 +644,31 @@ def schedule():
             
             // Initialize the appointment scheduler
             window.addEventListener('DOMContentLoaded', () => {{
-                setupNavigation();  // Set up month navigation buttons
-                setupDateSelector(); // Set up initial calendar
-                displayBookedSlots(); // Display list of booked slots
-                
-                // Initialize the current month display
-                updateMonthDisplay();
+                // Refresh data each time page loads to prevent caching issues
+                fetch('/api/booked-slots?' + new Date().getTime())
+                    .then(response => response.json())
+                    .then(data => {{
+                        // Update booked slots with fresh data
+                        bookedSlots.length = 0;
+                        data.forEach(slot => bookedSlots.push(slot));
+                        
+                        // Now initialize with fresh data
+                        setupNavigation();  // Set up month navigation buttons
+                        setupDateSelector(); // Set up initial calendar
+                        displayBookedSlots(); // Display list of booked slots
+                        
+                        // Initialize the current month display
+                        updateMonthDisplay();
+                    }})
+                    .catch(error => {{
+                        console.error('Error fetching booked slots:', error);
+                        
+                        // Fall back to default initialization
+                        setupNavigation();
+                        setupDateSelector();
+                        displayBookedSlots();
+                        updateMonthDisplay();
+                    }});
                 
                 // Select tomorrow as the default date since today is not available
                 const tomorrow = new Date(today);

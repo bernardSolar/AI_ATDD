@@ -121,17 +121,32 @@ class TestAppointmentScheduler(unittest.TestCase):
         time_str = "10:00"
         appointment_time = f"{date_str}T{time_str}"
         
+        # First, verify this time slot starts as available (not disabled)
+        self.dsl.visit_booking_page()
+        time.sleep(1)
+        self.assertFalse(self.dsl.verify_time_slot_is_disabled(date_str, time_str),
+            "Time slot should be available before booking")
+        
         # Book the appointment
         self.dsl.select_appointment_time(appointment_time)
         self.dsl.enter_appointment_details("Team Meeting")
         self.dsl.submit_appointment()
         time.sleep(1)
-        self.assertTrue(self.dsl.verify_appointment_success())
+        self.assertTrue(self.dsl.verify_appointment_success(), 
+            "Booking should succeed")
         
-        # Visit the page again and verify the slot is now disabled
-        self.dsl.visit_booking_page()
-        time.sleep(1)
-        self.assertTrue(self.dsl.verify_time_slot_is_disabled(date_str, time_str))
+        # Now simulate what a user would experience:
+        # 1. Visit the booking page fresh
+        # 2. Verify the slot appears as booked/disabled
+        print(f"Checking if time slot {date_str} at {time_str} is now disabled after booking...")
+        
+        # Force a fresh page load to ensure we're not seeing cached data
+        self.driver.session.get(f"{self.driver.base_url}?nocache={datetime.now().timestamp()}")
+        time.sleep(2)  # Give a bit more time for the page to fully load
+        
+        # This should now show as disabled to a real user
+        self.assertTrue(self.dsl.verify_time_slot_is_disabled(date_str, time_str), 
+            f"Time slot {date_str} at {time_str} should be disabled after booking")
 
     def test_attempting_to_select_greyed_out_slot(self):
         """
