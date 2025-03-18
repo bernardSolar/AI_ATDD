@@ -108,10 +108,13 @@ class TestAppointmentScheduler(unittest.TestCase):
         """
         Test that booking an available time slot works and then that slot becomes disabled.
         """
-        # Generate a future date/time that should be available
-        tomorrow = datetime.now() + timedelta(days=1)
-        tomorrow = tomorrow.replace(hour=10, minute=0, second=0, microsecond=0)
-        date_str = tomorrow.strftime("%Y-%m-%d")
+        # Use day after tomorrow to avoid potential conflicts
+        # (some systems might be using tomorrow already in another test)
+        future_date = datetime.now() + timedelta(days=6)  # Use 6 days ahead to avoid conflicts
+        if future_date.weekday() == 6:  # Skip Sunday
+            future_date += timedelta(days=1)
+        future_date = future_date.replace(hour=10, minute=0, second=0, microsecond=0)
+        date_str = future_date.strftime("%Y-%m-%d")
         time_str = "10:00"
         appointment_time = f"{date_str}T{time_str}"
         
